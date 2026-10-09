@@ -5,102 +5,138 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Position Size Calculator</title>
 <style>
-:root{--bg:#f4f5f7;--card:#fff;--ink:#14171c;--mut:#667085;--line:#e1e4ea;--acc:#0a8f5a;--bad:#c4321f;--warn:#a86400;--inp:#f0f2f5;
+:root{--bg:#f3f4f6;--card:#fff;--ink:#111318;--mute:#5f6b7a;--field:#eff0f5;--line:#e3e6ec;--long:#08915c;--short:#d8453b;--warn:#9a5b00;--warnbg:#fff3dc;--bad:#a8261c;--badbg:#fde8e6;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#171b22;--ink:#e8ebf0;--mut:#8b94a3;--line:#262c36;--acc:#2ed38a;--bad:#ff6b57;--warn:#f5b042;--inp:#0e1116}}
-:root[data-theme="dark"]{--bg:#0e1116;--card:#171b22;--ink:#e8ebf0;--mut:#8b94a3;--line:#262c36;--acc:#2ed38a;--bad:#ff6b57;--warn:#f5b042;--inp:#0e1116}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1318;--card:#191f27;--ink:#f1f4f7;--mute:#93a0ad;--field:#252d38;--line:#2a333f;--long:#1fae78;--short:#e5584e;--warn:#f0b45a;--warnbg:#3a2c12;--bad:#ff9a90;--badbg:#3d1b18}}
+:root[data-theme="dark"]{--bg:#0f1318;--card:#191f27;--ink:#f1f4f7;--mute:#93a0ad;--field:#252d38;--line:#2a333f;--long:#1fae78;--short:#e5584e;--warn:#f0b45a;--warnbg:#3a2c12;--bad:#ff9a90;--badbg:#3d1b18}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:480px;margin:0 auto;padding:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-label{display:block;font-size:13px;color:var(--mut);margin-bottom:5px}
-input,select{width:100%;padding:12px 10px;border:1px solid var(--line);border-radius:10px;background:var(--inp);color:var(--ink);font:inherit}
-input:focus,select:focus{outline:2px solid var(--acc)}
-.big{font-size:40px;font-weight:800;letter-spacing:-.02em;text-align:center;line-height:1.1}
-.cap{text-align:center;font-size:13px;color:var(--mut);margin-bottom:12px}
-.row{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line)}
-.row b{font-size:17px}
-.w1{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.45}
-.ok{background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--acc);font-weight:600}
-.bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
-.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
-.w1+.w1{margin-top:6px}
-summary{cursor:pointer;color:var(--mut);font-size:14px}
-.r{color:var(--bad)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;font-variant-numeric:tabular-nums}
+main{max-width:390px;margin:0 auto;padding:20px 14px 28px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:0 2px}
+.top label{font-size:14px;color:var(--mute)}
+.top input{width:110px;text-align:right;font-size:17px;padding:10px 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+label{display:block;font-size:12px;color:var(--mute);margin-bottom:6px}
+input{width:100%;font:inherit;font-size:19px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--field);color:var(--ink)}
+input:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg button{font:inherit;font-weight:700;padding:15px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer}
+.seg button.on.l{background:var(--long);border-color:var(--long);color:#fff}
+.seg button.on.s{background:var(--short);border-color:var(--short);color:#fff}
+details{margin-top:14px}
+summary{font-size:14px;color:var(--mute);cursor:pointer}
+.more{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.more .full{grid-column:1/-1}
+.more input{font-size:17px}
+#out{text-align:center;padding:18px 16px}
+.k{font-size:13px;color:var(--mute)}
+.big{font-size:46px;font-weight:800;line-height:1.1;margin:2px 0 10px;letter-spacing:-.5px}
+.line{color:var(--mute);margin:6px 0}
+.line b{color:var(--ink)}
+.ok{color:var(--long);margin-top:12px}
+.w{padding:9px 11px;border-radius:10px;font-size:14px;margin-top:10px;background:var(--warnbg);color:var(--warn);text-align:left}
+.w.bad{background:var(--badbg);color:var(--bad);font-weight:600}
+.ex{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:15px}
+.ex div{display:flex;justify-content:space-between;padding:3px 0;color:var(--mute)}
+.ex b{color:var(--ink)}
+.cp{margin-top:12px;font:inherit;font-size:13px;color:var(--mute);background:none;border:0;cursor:pointer;text-decoration:underline}
+.empty{color:var(--mute);font-size:15px}
 </style>
 </head>
 <body>
 <main>
+<div class="top"><label for="cap">My capital (USDT)</label><input id="cap" inputmode="decimal" placeholder="1000"></div>
+
 <div class="card">
-  <div class="g3">
-    <div><label for="cap">Capital $</label><input type="number" id="cap" inputmode="decimal" value="1000"></div>
-    <div><label for="risk">Risk $</label><input type="number" id="risk" inputmode="decimal" value="20"></div>
-    <div><label for="stop">Stop %</label><input type="number" id="stop" inputmode="decimal" step="any" value="2"></div>
+  <div class="row">
+    <div><label for="risk">Risk $</label><input id="risk" inputmode="decimal" placeholder="20"></div>
+    <div><label for="stop">Stop %</label><input id="stop" inputmode="decimal" placeholder="2"></div>
   </div>
-</div>
-
-<div class="card" id="res"></div>
-
-<div class="card">
-  <details><summary>More options</summary>
-    <div class="g2">
-      <div><label for="side">Direction</label><select id="side"><option value="long">Long</option><option value="short">Short</option></select></div>
-      <div><label for="entry">Entry price</label><input type="number" id="entry" inputmode="decimal" step="any"></div>
-      <div><label for="fee">Fee % per side</label><input type="number" id="fee" inputmode="decimal" step="any"></div>
-      <div><label for="margin">Margin $ (default: capital)</label><input type="number" id="margin" inputmode="decimal"></div>
+  <div class="seg">
+    <button id="bl" class="l on" type="button">Long</button>
+    <button id="bs" class="s" type="button">Short</button>
+  </div>
+  <details>
+    <summary>More (entry, fees, margin)</summary>
+    <div class="more">
+      <div class="full"><label for="entry">Entry price</label><input id="entry" inputmode="decimal" placeholder="optional"></div>
+      <div><label for="fee">Fee per side %</label><input id="fee" inputmode="decimal" placeholder="0.05"></div>
+      <div><label for="mar">Margin override</label><input id="mar" inputmode="decimal" placeholder="= capital"></div>
     </div>
   </details>
 </div>
 
+<div class="card" id="out"><span class="empty">Enter capital, risk and stop %.</span></div>
+</main>
+
 <script>
-const $=id=>document.getElementById(id);
-const fm=(n,d=2)=>isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
-const fp=n=>n>=100?fm(n,2):n>=1?fm(n,4):fm(n,8);
-const KEEP=['cap','risk','stop'];
-try{const s=JSON.parse(localStorage.getItem('pc')||'{}');KEEP.forEach(i=>{if(s[i]!==undefined)$(i).value=s[i]})}catch(e){}
+(function(){
+var $=function(i){return document.getElementById(i)};
+var side='long',lastText='';
+function num(id){var v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)?v:NaN}
+function usd(x){return '$'+x.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function px(x){var d=x>=1000?2:x>=1?4:x>=0.01?6:8;return x.toLocaleString('en-US',{maximumFractionDigits:d})}
+function pct(x,d){return (+x.toFixed(d==null?2:d)).toString()+'%'}
+function qty(x){return (+x.toPrecision(6)).toLocaleString('en-US',{maximumFractionDigits:8})}
+function setSide(s){side=s;$('bl').classList.toggle('on',s==='long');$('bs').classList.toggle('on',s==='short');calc()}
+$('bl').onclick=function(){setSide('long')};
+$('bs').onclick=function(){setSide('short')};
 
 function calc(){
-  const cap=+$('cap').value,risk=+$('risk').value,stop=+$('stop').value;
-  const fee=+$('fee').value||0,entry=+$('entry').value||0,mo=+$('margin').value||0,side=$('side').value;
-  try{const s={};KEEP.forEach(i=>s[i]=$(i).value);localStorage.setItem('pc',JSON.stringify(s))}catch(e){}
-  const res=$('res');
-  if(!(cap>0&&risk>0&&stop>0)){res.innerHTML='<div class="cap">Fill in capital, risk and stop %</div>';return}
-
-  const rt=2*fee,eff=stop+rt,pos=risk/(eff/100),base=mo>0?mo:cap;
-  const lev=Math.max(1,Math.ceil(pos/base-1e-9)),margin=pos/lev,liq=100/lev,rp=risk/cap*100;
-  const W=[];
+  var out=$('out');
+  var cap=num('cap'),risk=num('risk'),stop=num('stop'),fee=num('fee'),entry=num('entry'),mar=num('mar');
+  if(!(fee>=0))fee=0;
+  if(!(cap>0)||!(risk>0)||!(stop>0)){out.innerHTML='<span class="empty">Enter capital, risk and stop %.</span>';lastText='';return}
+  var rt=fee*2, N=risk/((stop+rt)/100);
+  var margin=mar>0?mar:cap;
+  var lev=Math.max(1,Math.ceil(N/margin-1e-9));
+  var riskPct=risk/cap*100;
   if(lev>50){
-    const mr=base*50*eff/100,ms=risk/(base*50)*100-rt;
-    W.push(['bad',`Not possible — needs ${lev}x (max 50x). Lower risk to $${fm(mr)} or less, or widen stop to ${fm(Math.max(ms,0.01))}% or more.`]);
+    var maxRisk=margin*50*(stop+rt)/100, needStop=risk/(margin*50)*100-rt;
+    lastText='';
+    out.innerHTML='<div class="k">Position size</div><div class="big">'+usd(N)+'</div>'+
+      '<div class="w bad">Not possible: needs '+lev+'x (over 50x) with '+usd(margin)+' margin.</div>'+
+      '<div class="line">Lower risk to '+usd(maxRisk)+' or less, or widen stop to '+pct(needStop)+' or more.</div>';
+    return;
   }
+  var mu=N/lev, liq=100/lev, ws=[];
   if(stop>0.8*liq){
-    const sf=Math.floor(80/stop);
-    W.push(['bad',sf>=1?`You could be liquidated before your stop hits. Use ${sf}x or less (about $${fm(pos/sf)} margin).`:`Stop is too wide for any leverage.`]);
+    var safe=Math.max(1,Math.floor(80/stop)), m2=N/safe;
+    ws.push('Could be liquidated before your stop hits. Use '+safe+'x with '+usd(m2)+' margin'+(m2>cap?' (more than your capital: cut risk or widen stop)':'')+'.');
   }
-  if(mo>cap)W.push(['warn','Margin is more than your capital.']);
-  if(rp>2)W.push(['warn',`Risk is ${fm(rp)}% of your capital (over 2%).`]);
-
-  let more='';
-  if(fee>0)more+=`<div class="row"><span>Fees (round trip)</span><b>$${fm(pos*rt/100)}</b></div>`;
+  if(riskPct>2)ws.push('Risk is above 2% of capital.');
+  if(mu>cap+0.005)ws.push('Margin exceeds your capital.');
+  var ex=[['Risk',usd(risk)+' ('+pct(riskPct)+' of capital)']];
+  if(fee>0)ex.push(['Round-trip fees',usd(N*rt/100)]);
   if(entry>0){
-    const sl=side==='long'?entry*(1-stop/100):entry*(1+stop/100);
-    more+=`<div class="row"><span>Stop-loss price</span><b>${fp(sl)}</b></div><div class="row"><span>Quantity</span><b>${fm(pos/entry,6)}</b></div>`;
+    var sp=side==='long'?entry*(1-stop/100):entry*(1+stop/100);
+    var lp=side==='long'?entry*(1-liq/100):entry*(1+liq/100);
+    ex.push(['Stop-loss price',px(sp)],['Coin quantity',qty(N/entry)],['Liquidation price',px(lp)]);
   }
-  res.innerHTML=`<div class="cap">Position size</div><div class="big ${lev>50?'r':''}">$${fm(pos)}</div><div style="height:12px"></div>
-  <div class="row"><span>Margin to put in</span><b>$${fm(margin)}</b></div>
-  <div class="row"><span>Leverage</span><b class="${lev>50?'r':''}">${lev}x</b></div>
-  <div class="row"><span>Risk</span><b>$${fm(risk)} (${fm(rp)}%)</b></div>
-  <div class="row"><span>Liquidation distance</span><b>~${fm(liq)}%</b></div>${more}
-  ${W.length?W.map(w=>`<div class="w1 ${w[0]}">⚠ ${w[1]}</div>`).join(''):'<div class="w1 ok">✓ All good</div>'}`;
+  var h='<div class="k">Position size</div><div class="big">'+usd(N)+'</div>'+
+    '<div class="line">Margin <b>'+usd(mu)+'</b> · Leverage <b>'+lev+'x</b></div>'+
+    '<div class="line">Liquidation <b>'+pct(liq,1)+'</b> away</div>';
+  if(ws.length)ws.forEach(function(w){h+='<div class="w">'+w+'</div>'});
+  else h+='<div class="ok">✓ All good</div>';
+  h+='<div class="ex">'+ex.map(function(l){return '<div><span>'+l[0]+'</span><b>'+l[1]+'</b></div>'}).join('')+'</div>';
+  h+='<button class="cp" id="cp" type="button">Copy result</button>';
+  out.innerHTML=h;
+  lastText='Position size: '+usd(N)+'\nMargin to put in: '+usd(mu)+'\nLeverage: '+lev+'x\nRisk: '+usd(risk)+' ('+pct(riskPct)+' of capital)\nApprox. liquidation distance: '+pct(liq,1)+
+    ex.slice(1).map(function(l){return '\n'+l[0]+': '+l[1]}).join('')+'\nWarnings: '+(ws.length?ws.join(' '):'none');
+  $('cp').onclick=function(){
+    var b=$('cp');
+    try{navigator.clipboard.writeText(lastText).then(function(){b.textContent='Copied'},function(){b.textContent='Copy blocked'})}
+    catch(e){b.textContent='Copy blocked'}
+    setTimeout(function(){var x=$('cp');if(x)x.textContent='Copy result'},1500);
+  };
 }
-document.querySelectorAll('input,select').forEach(i=>{
-  i.addEventListener('input',calc);
-  if(i.type==='number'){i.addEventListener('focus',()=>i.select());i.addEventListener('keydown',e=>{if(e.key==='Enter')i.blur()})}
-});
+function save(){try{localStorage.setItem('cap',$('cap').value)}catch(e){}}
+try{var c=localStorage.getItem('cap');if(c)$('cap').value=c}catch(e){}
+['cap','risk','stop','entry','fee','mar'].forEach(function(id){$(id).addEventListener('input',function(){if(id==='cap')save();calc()})});
 calc();
+})();
 </script>
 </body>
 </html>
