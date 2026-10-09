@@ -1,1 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Position Size Calculator</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--ink:#14171c;--mut:#667085;--line:#e1e4ea;--acc:#0a8f5a;--bad:#c4321f;--warn:#a86400;--inp:#f0f2f5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#171b22;--ink:#e8ebf0;--mut:#8b94a3;--line:#262c36;--acc:#2ed38a;--bad:#ff6b57;--warn:#f5b042;--inp:#0e1116}}
+:root[data-theme="dark"]{--bg:#0e1116;--card:#171b22;--ink:#e8ebf0;--mut:#8b94a3;--line:#262c36;--acc:#2ed38a;--bad:#ff6b57;--warn:#f5b042;--inp:#0e1116}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+label{display:block;font-size:13px;color:var(--mut);margin-bottom:5px}
+input,select{width:100%;padding:12px 10px;border:1px solid var(--line);border-radius:10px;background:var(--inp);color:var(--ink);font:inherit}
+input:focus,select:focus{outline:2px solid var(--acc)}
+.big{font-size:40px;font-weight:800;letter-spacing:-.02em;text-align:center;line-height:1.1}
+.cap{text-align:center;font-size:13px;color:var(--mut);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line)}
+.row b{font-size:17px}
+.w1{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.45}
+.ok{background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--acc);font-weight:600}
+.bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.w1+.w1{margin-top:6px}
+summary{cursor:pointer;color:var(--mut);font-size:14px}
+.r{color:var(--bad)}
+</style>
+</head>
+<body>
+<main>
+<div class="card">
+  <div class="g3">
+    <div><label for="cap">Capital $</label><input type="number" id="cap" inputmode="decimal" value="1000"></div>
+    <div><label for="risk">Risk $</label><input type="number" id="risk" inputmode="decimal" value="20"></div>
+    <div><label for="stop">Stop %</label><input type="number" id="stop" inputmode="decimal" step="any" value="2"></div>
+  </div>
+</div>
 
+<div class="card" id="res"></div>
+
+<div class="card">
+  <details><summary>More options</summary>
+    <div class="g2">
+      <div><label for="side">Direction</label><select id="side"><option value="long">Long</option><option value="short">Short</option></select></div>
+      <div><label for="entry">Entry price</label><input type="number" id="entry" inputmode="decimal" step="any"></div>
+      <div><label for="fee">Fee % per side</label><input type="number" id="fee" inputmode="decimal" step="any"></div>
+      <div><label for="margin">Margin $ (default: capital)</label><input type="number" id="margin" inputmode="decimal"></div>
+    </div>
+  </details>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fm=(n,d=2)=>isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
+const fp=n=>n>=100?fm(n,2):n>=1?fm(n,4):fm(n,8);
+const KEEP=['cap','risk','stop'];
+try{const s=JSON.parse(localStorage.getItem('pc')||'{}');KEEP.forEach(i=>{if(s[i]!==undefined)$(i).value=s[i]})}catch(e){}
+
+function calc(){
+  const cap=+$('cap').value,risk=+$('risk').value,stop=+$('stop').value;
+  const fee=+$('fee').value||0,entry=+$('entry').value||0,mo=+$('margin').value||0,side=$('side').value;
+  try{const s={};KEEP.forEach(i=>s[i]=$(i).value);localStorage.setItem('pc',JSON.stringify(s))}catch(e){}
+  const res=$('res');
+  if(!(cap>0&&risk>0&&stop>0)){res.innerHTML='<div class="cap">Fill in capital, risk and stop %</div>';return}
+
+  const rt=2*fee,eff=stop+rt,pos=risk/(eff/100),base=mo>0?mo:cap;
+  const lev=Math.max(1,Math.ceil(pos/base-1e-9)),margin=pos/lev,liq=100/lev,rp=risk/cap*100;
+  const W=[];
+  if(lev>50){
+    const mr=base*50*eff/100,ms=risk/(base*50)*100-rt;
+    W.push(['bad',`Not possible — needs ${lev}x (max 50x). Lower risk to $${fm(mr)} or less, or widen stop to ${fm(Math.max(ms,0.01))}% or more.`]);
+  }
+  if(stop>0.8*liq){
+    const sf=Math.floor(80/stop);
+    W.push(['bad',sf>=1?`You could be liquidated before your stop hits. Use ${sf}x or less (about $${fm(pos/sf)} margin).`:`Stop is too wide for any leverage.`]);
+  }
+  if(mo>cap)W.push(['warn','Margin is more than your capital.']);
+  if(rp>2)W.push(['warn',`Risk is ${fm(rp)}% of your capital (over 2%).`]);
+
+  let more='';
+  if(fee>0)more+=`<div class="row"><span>Fees (round trip)</span><b>$${fm(pos*rt/100)}</b></div>`;
+  if(entry>0){
+    const sl=side==='long'?entry*(1-stop/100):entry*(1+stop/100);
+    more+=`<div class="row"><span>Stop-loss price</span><b>${fp(sl)}</b></div><div class="row"><span>Quantity</span><b>${fm(pos/entry,6)}</b></div>`;
+  }
+  res.innerHTML=`<div class="cap">Position size</div><div class="big ${lev>50?'r':''}">$${fm(pos)}</div><div style="height:12px"></div>
+  <div class="row"><span>Margin to put in</span><b>$${fm(margin)}</b></div>
+  <div class="row"><span>Leverage</span><b class="${lev>50?'r':''}">${lev}x</b></div>
+  <div class="row"><span>Risk</span><b>$${fm(risk)} (${fm(rp)}%)</b></div>
+  <div class="row"><span>Liquidation distance</span><b>~${fm(liq)}%</b></div>${more}
+  ${W.length?W.map(w=>`<div class="w1 ${w[0]}">⚠ ${w[1]}</div>`).join(''):'<div class="w1 ok">✓ All good</div>'}`;
+}
+document.querySelectorAll('input,select').forEach(i=>{
+  i.addEventListener('input',calc);
+  if(i.type==='number'){i.addEventListener('focus',()=>i.select());i.addEventListener('keydown',e=>{if(e.key==='Enter')i.blur()})}
+});
+calc();
+</script>
+</body>
+</html>
